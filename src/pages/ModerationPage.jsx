@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import styled from "styled-components";
 import { FaCheck, FaTimes, FaShieldAlt } from "react-icons/fa";
+import LogoutButton from "./LogoutButton";
 
 const Container = styled.div`
   display: flex;
@@ -257,8 +258,10 @@ export default function ModerationPage() {
   return (
     <Container>
       <Column>
+      <LogoutButton />
         <PageTitle>Moderation Dashboard</PageTitle>
         {loading && <p>Loading...</p>}
+        
 
         <SectionTitle>Pending Reviews</SectionTitle>
         {pendingReviews.length === 0 ? <p>No pending reviews</p> : pendingReviews.map(r => renderCard(r, "reviews"))}

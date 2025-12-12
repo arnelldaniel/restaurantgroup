@@ -1,134 +1,180 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { UserContext } from './UserContext';
 import LogoutButton from './LogoutButton';
 
-// Floating blob animation for hero
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-`;
+// ===============================
+// **FULL REAL-WEBSITE PROFESSIONAL REDESIGN**
+// Clean, premium, modern landing-page layout
+// Hero with two-column structure, illustration panel, depth layers, polished UI
+// ===============================
 
 const Page = styled.div`
   width: 100%;
   min-height: 100vh;
-  padding: 50px 80px;
-  background: linear-gradient(135deg, #f9f9fb, #e3f2fd);
-  font-family: 'Arial', sans-serif;
-  box-sizing: border-box;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 768px) { padding: 40px 30px; }
-  @media (max-width: 480px) { padding: 30px 20px; }
-`;
-
-const BackgroundBlob = styled.div`
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: #d1c4e9;
-  border-radius: 50%;
-  top: -100px;
-  left: -150px;
-  opacity: 0.3;
-  animation: ${float} 8s ease-in-out infinite;
-  z-index: 0;
-`;
-
-const Header = styled.div`
+  background: #f5f7fa;
+  font-family: 'Inter', sans-serif;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
+  justify-content: center;
+  padding: 0 20px;
 `;
 
-const Hero = styled.div`
-  text-align: center;
-  margin-bottom: 50px;
-  position: relative;
-  z-index: 1;
+const Container = styled.div`
+  width: 100%;
+  max-width: 1300px;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0 80px 0;
 `;
+
+// HEADER -----------------------
+
+const Header = styled.header`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+`;
+
+const Logo = styled.div`
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #222;
+`;
+
+// HERO SECTION -----------------
+
+const Hero = styled.section`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 60px;
+  align-items: center;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+`;
+
+const HeroText = styled.div``;
 
 const Title = styled.h1`
-  font-size: 4rem;
+  font-size: 3.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #0f1115;
   margin-bottom: 20px;
-  color: #3a3a3a;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 
-  @media (max-width: 768px) { font-size: 3rem; }
-  @media (max-width: 480px) { font-size: 2.2rem; }
+  @media (max-width: 900px) {
+    font-size: 3rem;
+  }
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.6rem;
-  color: #555;
-  margin-bottom: 40px;
-  line-height: 1.6;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 1.25rem;
+  color: #4d525a;
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 32px;
 
-  @media (max-width: 768px) { font-size: 1.3rem; }
-  @media (max-width: 480px) { font-size: 1.1rem; }
+  @media (max-width: 900px) {
+    margin: 0 auto 32px auto;
+  }
 `;
 
-const Card = styled.div`
-  background: linear-gradient(145deg, #ffffff, #f1f6f9);
-  padding: 45px 35px;
-  border-radius: 24px;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-  margin-bottom: 30px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+const CTAButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 26px;
+  background: #3d63ff;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 26px rgba(61,99,255,0.25);
+  transition: 0.25s;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 18px 50px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(61,99,255,0.35);
   }
+`;
+
+// HERO IMAGE -------------------
+
+const HeroImageWrapper = styled.div`
+  width: 100%;
+  height: 420px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #cfd9ff, #fff 60%);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    height: 320px;
+  }
+`;
+
+const IllustrationPlaceholder = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #6e77a3;
+  opacity: 0.45;
+`;
+
+// CARD SECTION -----------------
+
+const Card = styled.div`
+  margin: 70px auto 0 auto;
+  width: 100%;
+  max-width: 780px;
+  background: #ffffff;
+  padding: 45px 40px;
+  border-radius: 20px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.08);
+  border: 1px solid #ececec;
 `;
 
 const Greeting = styled.div`
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 30px;
   text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 30px;
 `;
 
 const Nav = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 22px;
 `;
 
 const NavLink = styled(Link)`
-  padding: 15px 25px;
-  background: linear-gradient(135deg, #6c63ff, #007bff);
-  color: white;
-  border-radius: 16px;
-  font-weight: 600;
+  padding: 16px;
+  background: #f5f7ff;
+  color: #333;
+  border-radius: 12px;
   text-decoration: none;
-  transition: all 0.3s ease;
-  min-width: 150px;
+  font-weight: 600;
   text-align: center;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  border: 1px solid #e0e6ff;
+  transition: 0.25s;
 
   &:hover {
-    background: linear-gradient(135deg, #3f3dff, #0056b3);
+    background: #3d63ff;
+    color: #fff;
+    border-color: transparent;
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
-
-  @media (max-width: 480px) {
-    padding: 12px 20px;
-    font-size: 0.95rem;
+    box-shadow: 0 16px 32px rgba(61,99,255,0.25);
   }
 `;
 
@@ -137,31 +183,50 @@ export default function HomePage() {
 
   return (
     <Page>
-      <BackgroundBlob />
-      <Header>{user && <LogoutButton />}</Header>
+      <Container>
+        <Header>
+          <Logo>FoodReviews</Logo>
+          {user && <LogoutButton />}
+        </Header>
 
-      <Hero>
-        <Title>Welcome to FoodReviews!</Title>
-        <Subtitle>Discover restaurants, read reviews, and share your experiences.</Subtitle>
-      </Hero>
+        <Hero>
+          <HeroText>
+            <Title>Find the best restaurants near you</Title>
+            <Subtitle>
+              Browse curated listings, read trusted reviews, and share your own dining experiences — all on a clean, modern platform.
+            </Subtitle>
+            <CTAButton to="/search">Explore Restaurants</CTAButton>
+          </HeroText>
 
-      {user ? (
-        <Card>
-          <Greeting>Hello, {user.username || user.email || 'User'}!</Greeting>
-          <Nav>
-            <NavLink to="/search">Search Restaurants</NavLink>
-          </Nav>
-        </Card>
-      ) : (
-        <Card>
-          <Nav>
-            <NavLink to="/register">User Sign Up</NavLink>
-            <NavLink to="/login">User Login</NavLink>
-            <NavLink to="/admin/login">Admin Login</NavLink>
-            <NavLink to="/moderator/login">Moderator Login</NavLink>
-          </Nav>
-        </Card>
-      )}
+          <HeroImageWrapper>
+            <IllustrationPlaceholder>
+              <img src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80
+
+
+'/>
+            </IllustrationPlaceholder>
+          </HeroImageWrapper>
+        </Hero>
+
+        {user ? (
+          <Card>
+            <Greeting>Hello, {user.username || user.email || 'User'}!</Greeting>
+            <Nav>
+              <NavLink to="/search">Search Restaurants</NavLink>
+            </Nav>
+          </Card>
+        ) : (
+          <Card>
+            <Greeting>Get Started</Greeting>
+            <Nav>
+              <NavLink to="/register">User Sign Up</NavLink>
+              <NavLink to="/login">User Login</NavLink>
+              <NavLink to="/admin/login">Admin Login</NavLink>
+              <NavLink to="/moderator/login">Moderator Login</NavLink>
+            </Nav>
+          </Card>
+        )}
+      </Container>
     </Page>
   );
 }

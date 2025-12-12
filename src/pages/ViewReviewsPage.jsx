@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { supabase } from "./supabaseClient";
 import { UserContext } from "./UserContext";
@@ -168,6 +168,21 @@ const CommentItem = styled.li`
 const ReportedTag = styled.span`
   color: red;
   margin-left: 6px;
+`;
+const SubmitReviewLink = styled(Link)`
+  display: inline-block;
+  padding: 10px 18px;
+  margin-bottom: 20px;
+  background-color: #28a745;
+  color: white;
+  font-weight: 500;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.2s;
+
+  &:hover {
+    background-color: #218838;
+  }
 `;
 
 // ---------------------------------------------------------
@@ -349,6 +364,8 @@ export default function ViewReviewsPage() {
           <option value="helpful">Most Helpful</option>
         </select>
       </FilterRow>
+      <SubmitReviewLink to={`/restaurant/${id}/review`}>Submit Review</SubmitReviewLink>
+      
 
       {loading && <p>Loading reviews...</p>}
       {!loading && reviews.length === 0 && <p>No reviews yet.</p>}

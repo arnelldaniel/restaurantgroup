@@ -4,6 +4,7 @@ import { supabase } from './supabaseClient';
 import styled from 'styled-components';
 import { UserContext } from './UserContext';
 import { FaPencilAlt, FaTrash, FaArrowLeft } from 'react-icons/fa';
+import LogoutButton from './LogoutButton';
 
 // ---- Full-page container ----
 const Container = styled.div`
@@ -19,7 +20,6 @@ const Container = styled.div`
   @media (max-width: 480px) { padding: 15px 15px; }
 `;
 
-// Headings
 const PageTitle = styled.h2`
   font-size: 36px;
   margin-bottom: 20px;
@@ -42,14 +42,8 @@ const BackButton = styled.button`
   display: flex;
   align-items: center;
 
-  &:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
-  }
-
-  svg {
-    margin-right: 5px;
-  }
+  &:hover { opacity: 0.85; transform: translateY(-1px); }
+  svg { margin-right: 5px; }
 `;
 
 const Form = styled.form`
@@ -114,18 +108,22 @@ const Button = styled.button`
   font-weight: 500;
   background-color: ${(props) =>
     props.variant === 'delete' ? '#dc3545' :
-    props.variant === 'edit' ? '#ffc107' : '#007bff'};
+    props.variant === 'edit' ? '#ffc107' :
+    '#007bff'};
 
-  &:hover {
-    opacity: 0.85;
-  }
+  &:hover { opacity: 0.85; }
 
-  svg {
-    margin-right: 5px;
-  }
+  svg { margin-right: 5px; }
 `;
 
-// Table
+const ImagePreview = styled.img`
+  max-width: 200px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  object-fit: cover;
+`;
+
 const Table = styled.table`
   width: 100%;
   margin-top: 20px;
@@ -153,64 +151,70 @@ export default function AdminMenuPage() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
-  useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      navigate('/', { replace: true });
-    }
-  }, [user, navigate]);
-
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newItem, setNewItem] = useState({ name: '', price: '', description: '' });
+  const [newItem, setNewItem] = useState({ name: '', price: '', description: '', imageFile: null, image_url: '' });
   const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    if (!user || user.role !== 'admin') navigate('/', { replace: true });
+  }, [user, navigate]);
 
   const fetchMenuItems = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('menu_items')
-      .select('*')
-      .eq('restaurant_id', id);
+    const { data, error } = await supabase.from('menu_items').select('*').eq('restaurant_id', id);
     if (error) console.error('Error fetching menu items:', error);
     else setMenuItems(data);
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchMenuItems();
-  }, [id]);
+  useEffect(() => { fetchMenuItems(); }, [id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) setNewItem(prev => ({ ...prev, imageFile: e.target.files[0] }));
+  };
+
+  const uploadImage = async (file) => {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('restaurant-images').upload(fileName, file);
+    if (uploadError) { console.error(uploadError); return null; }
+    const { data: { publicUrl } } = supabase.storage.from('restaurant-images').getPublicUrl(fileName);
+    return publicUrl;
+  };
+
   const handleAddOrUpdate = async (e) => {
     e.preventDefault();
     if (!newItem.name || !newItem.price) return alert('Name and price are required.');
+
+    let imageUrl = newItem.image_url;
+    if (newItem.imageFile) {
+      const uploadedUrl = await uploadImage(newItem.imageFile);
+      if (!uploadedUrl) return alert('Failed to upload image.');
+      imageUrl = uploadedUrl;
+    }
 
     const itemData = {
       name: newItem.name,
       price: parseFloat(newItem.price),
       description: newItem.description,
-      restaurant_id: id
+      restaurant_id: id,
+      image_url: imageUrl,
     };
 
     if (editingId) {
-      const { error } = await supabase
-        .from('menu_items')
-        .update(itemData)
-        .eq('id', editingId);
+      const { error } = await supabase.from('menu_items').update(itemData).eq('id', editingId);
       if (error) console.error('Update error:', error);
-      else alert('Menu item updated!');
     } else {
-      const { error } = await supabase
-        .from('menu_items')
-        .insert([itemData]);
+      const { error } = await supabase.from('menu_items').insert([itemData]);
       if (error) console.error('Insert error:', error);
-      else alert('Menu item added!');
     }
 
-    setNewItem({ name: '', price: '', description: '' });
+    setNewItem({ name: '', price: '', description: '', imageFile: null, image_url: '' });
     setEditingId(null);
     fetchMenuItems();
   };
@@ -220,7 +224,9 @@ export default function AdminMenuPage() {
     setNewItem({
       name: item.name,
       price: item.price,
-      description: item.description
+      description: item.description,
+      imageFile: null,
+      image_url: item.image_url || '',
     });
   };
 
@@ -238,30 +244,16 @@ export default function AdminMenuPage() {
       </BackButton>
 
       <PageTitle>Manage Menu Items</PageTitle>
+      <LogoutButton />
 
       <Form onSubmit={handleAddOrUpdate}>
         <FormTitle>{editingId ? 'Edit Menu Item' : 'Add New Menu Item'}</FormTitle>
-        <Input
-          name="name"
-          placeholder="Item Name"
-          value={newItem.name}
-          onChange={handleInputChange}
-        />
-        <Input
-          name="price"
-          type="number"
-          step="0.01"
-          placeholder="Price"
-          value={newItem.price}
-          onChange={handleInputChange}
-        />
-        <TextArea
-          name="description"
-          placeholder="Description"
-          rows={3}
-          value={newItem.description}
-          onChange={handleInputChange}
-        />
+        <Input name="name" placeholder="Item Name" value={newItem.name} onChange={handleInputChange} />
+        <Input name="price" type="number" step="0.01" placeholder="Price" value={newItem.price} onChange={handleInputChange} />
+        <TextArea name="description" placeholder="Description" rows={3} value={newItem.description} onChange={handleInputChange} />
+        <Input type="file" onChange={handleFileChange} />
+        {newItem.imageFile && <ImagePreview src={URL.createObjectURL(newItem.imageFile)} alt="Preview" />}
+        {!newItem.imageFile && newItem.image_url && <ImagePreview src={newItem.image_url} alt="Preview" />}
         <Button type="submit">{editingId ? 'Update Item' : 'Add Item'}</Button>
       </Form>
 
@@ -274,6 +266,7 @@ export default function AdminMenuPage() {
             <Th>Item</Th>
             <Th>Price</Th>
             <Th>Description</Th>
+            <Th>Image</Th>
             <Th>Actions</Th>
           </tr>
         </thead>
@@ -283,13 +276,10 @@ export default function AdminMenuPage() {
               <Td>{item.name}</Td>
               <Td>£{item.price.toFixed(2)}</Td>
               <Td>{item.description}</Td>
+              <Td>{item.image_url && <img src={item.image_url} alt={item.name} style={{ maxWidth: '80px', borderRadius: '6px' }} />}</Td>
               <Td>
-                <Button variant="edit" onClick={() => handleEdit(item)}>
-                  <FaPencilAlt /> Edit
-                </Button>
-                <Button variant="delete" onClick={() => handleDelete(item.id)}>
-                  <FaTrash /> Delete
-                </Button>
+                <Button variant="edit" onClick={() => handleEdit(item)}><FaPencilAlt /> Edit</Button>
+                <Button variant="delete" onClick={() => handleDelete(item.id)}><FaTrash /> Delete</Button>
               </Td>
             </tr>
           ))}

@@ -101,6 +101,20 @@ const LoginLink = styled.a`
     background-color: #218838;
   }
 `;
+const HomeButton = styled.button`
+  margin-top: 15px;
+  padding: 12px 20px;
+  background-color: #6c757d;
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+`;
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -148,6 +162,7 @@ export default function RegisterPage() {
         Already have an account?{" "}
         <LoginLink href="/login">Log In</LoginLink>
       </FormFooter>
+      <HomeButton onClick={() => navigate("/")}>Go Back Home</HomeButton>
     </Container>
   );
 }

@@ -11,6 +11,8 @@ const PageContainer = styled.div`
   padding: 60px 80px;
   background-color: #f8f9fa;
   font-family: "Arial", sans-serif;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   @media (max-width: 1024px) { padding: 50px 40px; }
   @media (max-width: 768px) { padding: 40px 30px; }
@@ -19,16 +21,20 @@ const PageContainer = styled.div`
 
 const HeaderRow = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* left and right items */
+  align-items: center;
   margin-bottom: 25px;
 `;
 
 const Image = styled.img`
   width: 100%;
+  max-width: 100%;
   max-height: 400px;
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 20px;
+  display: block;
+  box-sizing: border-box;
 `;
 
 const Title = styled.h2`
@@ -123,6 +129,7 @@ export default function RestaurantDetailsPage() {
     return (
       <PageContainer>
         <HeaderRow>
+          <Button to="/search" variant="back">Back to Search</Button>
           <LogoutButton />
         </HeaderRow>
         <p>Loading...</p>
@@ -133,6 +140,7 @@ export default function RestaurantDetailsPage() {
     return (
       <PageContainer>
         <HeaderRow>
+          <Button to="/search" variant="back">Back to Search</Button>
           <LogoutButton />
         </HeaderRow>
         <p>Restaurant not found.</p>
@@ -142,6 +150,7 @@ export default function RestaurantDetailsPage() {
   return (
     <PageContainer>
       <HeaderRow>
+        <Button to="/search" variant="back">Back to Search</Button>
         <LogoutButton />
       </HeaderRow>
 
@@ -168,12 +177,6 @@ export default function RestaurantDetailsPage() {
         <Button to={`/restaurant/${restaurant.id}/menu`}>View Menu</Button>
         <Button to={`/restaurant/${restaurant.id}/reviews`} variant="reviews">
           View Reviews
-        </Button>
-        <Button to={`/restaurant/${restaurant.id}/review`} variant="submit">
-          Submit Review
-        </Button>
-        <Button to="/search" variant="back">
-          Back to Search
         </Button>
       </ButtonRow>
     </PageContainer>

@@ -4,7 +4,8 @@ import { supabase } from "./supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import AdminNavbar from "./AdminNavbar";
-import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import { FaPencilAlt, FaTrash, FaPlus } from "react-icons/fa";
+import LogoutButton from "./LogoutButton";
 
 // ---- Full-page Container ----
 const Container = styled.div`
@@ -21,9 +22,15 @@ const Container = styled.div`
 `;
 
 // Page Title
+const PageTitleRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+`;
+
 const PageTitle = styled.h2`
   font-size: 36px;
-  margin-bottom: 30px;
   color: #343a40;
 `;
 
@@ -98,6 +105,8 @@ const Button = styled.button`
       ? "#dc3545"
       : props.variant === "edit"
       ? "#ffc107"
+      : props.variant === "add"
+      ? "#28a745"
       : "#007bff"};
 
   &:hover {
@@ -187,13 +196,8 @@ export default function AdminRestaurantsPage() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
-  useEffect(() => {
-    if (!user || user.role !== "admin") {
-      navigate("/", { replace: true });
-    }
-  }, [user, navigate]);
-
   const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false); // toggle form
   const [newRestaurant, setNewRestaurant] = useState({
     name: "",
     location: "",
@@ -204,6 +208,12 @@ export default function AdminRestaurantsPage() {
     image_url: "",
   });
   const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   const fetchRestaurants = async () => {
     setLoading(true);
@@ -276,12 +286,14 @@ export default function AdminRestaurantsPage() {
 
     setNewRestaurant({ name: "", location: "", cuisine: "", description: "", contact: "", imageFile: null, image_url: "" });
     setEditingId(null);
+    setShowForm(false); // hide form after add/update
     fetchRestaurants();
   };
 
   const handleEdit = (restaurant) => {
     setEditingId(restaurant.id);
     setNewRestaurant({ ...restaurant, imageFile: null });
+    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -294,20 +306,29 @@ export default function AdminRestaurantsPage() {
   return (
     <Container>
       <AdminNavbar />
-      <PageTitle>Admin Panel: Manage Restaurants</PageTitle>
+      <PageTitleRow>
+        <PageTitle>Admin Panel: Manage Restaurants</PageTitle>
+        <Button variant="add" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
+          <FaPlus style={{ marginRight: "5px" }} /> Add Restaurant
+        </Button>
+      </PageTitleRow>
 
-      <Form onSubmit={handleAddOrUpdate}>
-        <FormTitle>{editingId ? "Edit Restaurant" : "Add New Restaurant"}</FormTitle>
-        <Input name="name" placeholder="Name" value={newRestaurant.name} onChange={handleInputChange} />
-        <Input name="location" placeholder="Location" value={newRestaurant.location} onChange={handleInputChange} />
-        <Input name="cuisine" placeholder="Cuisine" value={newRestaurant.cuisine} onChange={handleInputChange} />
-        <TextArea name="description" placeholder="Description" rows={3} value={newRestaurant.description} onChange={handleInputChange} />
-        <Input name="contact" placeholder="Contact" value={newRestaurant.contact} onChange={handleInputChange} />
-        <Input type="file" onChange={handleFileChange} />
-        {newRestaurant.imageFile && <ImagePreview src={URL.createObjectURL(newRestaurant.imageFile)} alt="Preview" />}
-        {!newRestaurant.imageFile && newRestaurant.image_url && <ImagePreview src={newRestaurant.image_url} alt="Preview" />}
-        <Button type="submit">{editingId ? "Update Restaurant" : "Add Restaurant"}</Button>
-      </Form>
+      <LogoutButton />
+
+      {showForm && (
+        <Form onSubmit={handleAddOrUpdate}>
+          <FormTitle>{editingId ? "Edit Restaurant" : "Add New Restaurant"}</FormTitle>
+          <Input name="name" placeholder="Name" value={newRestaurant.name} onChange={handleInputChange} />
+          <Input name="location" placeholder="Location" value={newRestaurant.location} onChange={handleInputChange} />
+          <Input name="cuisine" placeholder="Cuisine" value={newRestaurant.cuisine} onChange={handleInputChange} />
+          <TextArea name="description" placeholder="Description" rows={3} value={newRestaurant.description} onChange={handleInputChange} />
+          <Input name="contact" placeholder="Contact" value={newRestaurant.contact} onChange={handleInputChange} />
+          <Input type="file" onChange={handleFileChange} />
+          {newRestaurant.imageFile && <ImagePreview src={URL.createObjectURL(newRestaurant.imageFile)} alt="Preview" />}
+          {!newRestaurant.imageFile && newRestaurant.image_url && <ImagePreview src={newRestaurant.image_url} alt="Preview" />}
+          <Button type="submit">{editingId ? "Update Restaurant" : "Add Restaurant"}</Button>
+        </Form>
+      )}
 
       <h3>Existing Restaurants</h3>
       {loading && <p>Loading...</p>}
@@ -332,7 +353,7 @@ export default function AdminRestaurantsPage() {
               <Link to={`/admin/restaurants/${r.id}/menu`}>
                 <Button><FaPencilAlt style={{ marginRight: "5px" }} /> Edit Menu</Button>
               </Link>
-              <Button variant="edit" onClick={() => handleEdit(r)}><FaPencilAlt style={{ marginRight: "5px" }} /> Edit</Button>
+              <Button variant="edit" onClick={() => handleEdit(r)}><FaPencilAlt style={{ marginRight: "5px" }} /> Edit Restaurant Details</Button>
               <Button variant="delete" onClick={() => handleDelete(r.id)}><FaTrash style={{ marginRight: "5px" }} /> Delete</Button>
             </div>
           </CardBody>

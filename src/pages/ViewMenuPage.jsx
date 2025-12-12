@@ -7,88 +7,96 @@ import LogoutButton from "./LogoutButton";
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
-  padding: 60px 80px;
+  padding: 40px 60px;
   box-sizing: border-box;
   font-family: "Arial", sans-serif;
-  background-color: #f8f9fa;
+  background-color: #f5f6fa;
 
-  @media (max-width: 1024px) {
-    padding: 50px 40px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 40px 30px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 30px 20px;
-  }
+  @media (max-width: 1024px) { padding: 35px 40px; }
+  @media (max-width: 768px) { padding: 30px 25px; }
+  @media (max-width: 480px) { padding: 20px 15px; }
 `;
 
 const HeaderRow = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 
 const Title = styled.h2`
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 30px;
-  color: #343a40;
+  color: #2f3640;
 
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.8rem;
-  }
+  @media (max-width: 768px) { font-size: 2rem; }
+  @media (max-width: 480px) { font-size: 1.8rem; }
 `;
 
 const BackButton = styled.button`
-  padding: 12px 18px;
+  padding: 10px 16px;
   margin-bottom: 25px;
-  background-color: #6c757d;
+  background-color: #718093;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
 
-  &:hover {
-    background-color: #5a6268;
-  }
+  &:hover { background-color: #636e72; }
 `;
 
-const MenuList = styled.ul`
-  list-style: none;
-  padding: 0;
+const MenuGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 `;
 
-const MenuItem = styled.li`
-  padding: 15px 18px;
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 12px;
-  border-radius: 8px;
+const MenuCard = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+
+  &:hover { transform: translateY(-3px); }
+`;
+
+const MenuImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+`;
+
+const MenuContent = styled.div`
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
   strong {
-    color: #007bff;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    color: #192a56;
   }
 
   p {
-    margin: 5px 0 0 0;
-    color: #495057;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    color: #353b48;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  span {
+    font-weight: bold;
+    color: #e84118;
   }
 `;
 
 export default function ViewMenuPage() {
-  const { id } = useParams(); // restaurant id
+  const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,51 +104,49 @@ export default function ViewMenuPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-
-      const { data: restaurantData, error: restaurantError } = await supabase
+      const { data: restaurantData } = await supabase
         .from("restaurants")
         .select("name")
         .eq("id", id)
         .single();
-
-      if (!restaurantError) setRestaurant(restaurantData);
+      if (restaurantData) setRestaurant(restaurantData);
 
       const { data: menuData } = await supabase
         .from("menu_items")
         .select("*")
         .eq("restaurant_id", id);
-
       if (menuData) setMenuItems(menuData);
 
       setLoading(false);
     };
-
     fetchData();
   }, [id]);
 
   return (
     <Container>
-      <HeaderRow>
-        <LogoutButton />
-      </HeaderRow>
-
+      <HeaderRow><LogoutButton /></HeaderRow>
       <Title>Menu for {restaurant ? restaurant.name : "Restaurant"}</Title>
-
-      <BackButton onClick={() => window.history.back()}>
-        Back to Restaurant Details
-      </BackButton>
+      <BackButton onClick={() => window.history.back()}>Back to Restaurant Details</BackButton>
 
       {loading && <p>Loading menu...</p>}
       {!loading && menuItems.length === 0 && <p>No menu items found.</p>}
 
-      <MenuList>
+      <MenuGrid>
         {menuItems.map((item) => (
-          <MenuItem key={item.id}>
-            <strong>{item.name}</strong> - £{item.price.toFixed(2)}
-            <p>{item.description}</p>
-          </MenuItem>
+          <MenuCard key={item.id}>
+            {item.image_url ? (
+              <MenuImage src={item.image_url} alt={item.name} />
+            ) : (
+              <MenuImage src="https://via.placeholder.com/400x200?text=No+Image" alt="No image" />
+            )}
+            <MenuContent>
+              <strong>{item.name}</strong>
+              <span>£{item.price.toFixed(2)}</span>
+              <p>{item.description}</p>
+            </MenuContent>
+          </MenuCard>
         ))}
-      </MenuList>
+      </MenuGrid>
     </Container>
   );
 }
