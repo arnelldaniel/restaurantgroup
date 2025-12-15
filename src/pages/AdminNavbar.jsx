@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link, useLocation } from "react-router-dom";
-import LogoutButton from "./LogoutButton"; // ← ONLY NEW IMPORT
+import LogoutButton from "./LogoutButton";
 
 const NavFont = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -13,7 +13,6 @@ const NavWrapper = styled.header`
   z-index: 1000;
   background: linear-gradient(135deg, #0d6efd, #0b5ed7);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 `;
@@ -38,6 +37,11 @@ const NavLinks = styled.div`
   display: flex;
   gap: 12px;
   align-items: center;
+  flex: 1;
+`;
+
+const LogoutWrapper = styled.div`
+  margin-left: auto;
 `;
 
 const NavLink = styled(Link)`
@@ -93,22 +97,21 @@ export default function AdminNavbar() {
             >
               Restaurants
             </NavLink>
-
             <NavLink
               to="/admin/users"
               $active={location.pathname === "/admin/users"}
             >
               Users
             </NavLink>
-
             <NavLink
               to="/moderation"
               $active={location.pathname === "/moderation"}
             >
               Moderation
             </NavLink>
-
-            <LogoutButton /> 
+            <LogoutWrapper>
+              <LogoutButton />
+            </LogoutWrapper>
           </NavLinks>
         </Nav>
       </NavWrapper>
