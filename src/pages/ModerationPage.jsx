@@ -278,9 +278,8 @@ export default function ModerationPage() {
 
   return (
     <>
-      {/* ADMIN ONLY NAVBAR */}
       {user?.role === "admin" && (
-  <div style={{ fontFamily: "revert" }}>
+  <div style={{ fontFamily: "Arial, sans-serif" }}>
     <AdminNavbar />
   </div>
 )}
