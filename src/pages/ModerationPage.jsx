@@ -278,13 +278,12 @@ export default function ModerationPage() {
 
   return (
     <>
-      
-<AdminNavbar />
+      <AdminNavbar />
 
       <Container>
-        
         <Column>
-          <LogoutButton />
+          {user?.role === "moderator" && <LogoutButton />}
+
           <PageTitle>Moderation Dashboard</PageTitle>
           {loading && <p>Loading...</p>}
 
