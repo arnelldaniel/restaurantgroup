@@ -6,8 +6,6 @@ import styled from "styled-components";
 import AdminNavbar from "./AdminNavbar";
 import { FaTrash, FaUserSlash, FaUserCheck } from "react-icons/fa";
 
-
-// ---- Full-page Container ----
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
@@ -21,14 +19,12 @@ const Container = styled.div`
   @media (max-width: 480px) { padding: 15px 15px; }
 `;
 
-// Page Title
 const PageTitle = styled.h2`
   font-size: 36px;
   margin-bottom: 30px;
   color: #343a40;
 `;
 
-// Users List
 const UsersList = styled.div`
   display: flex;
   flex-direction: column;
@@ -36,7 +32,6 @@ const UsersList = styled.div`
   margin-top: 20px;
 `;
 
-// User Card
 const UserCard = styled.div`
   display: flex;
   justify-content: space-between;
@@ -49,27 +44,23 @@ const UserCard = styled.div`
   background: #fff;
 `;
 
-// User Info
 const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
 `;
 
-// Username
 const Username = styled.span`
   font-weight: bold;
   font-size: 16px;
   color: #212529;
 `;
 
-// Created At
 const CreatedAt = styled.span`
   font-size: 14px;
   color: #555;
 `;
 
-// Status Badge
 const StatusBadge = styled.span`
   padding: 4px 10px;
   border-radius: 20px;
@@ -79,7 +70,6 @@ const StatusBadge = styled.span`
   margin-right: 15px;
 `;
 
-// Buttons
 const Button = styled.button`
   padding: 8px 12px;
   margin-left: 5px;
