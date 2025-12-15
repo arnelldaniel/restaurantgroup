@@ -9,16 +9,20 @@ import AdminNavbar from "./AdminNavbar";
 
 /* ================== LAYOUT ================== */
 
-// Page wrapper matches other admin pages
-const PageWrapper = styled.div`
-  width: 100%;
+const Page = styled.div`
+  display: flex;
   min-height: 100vh;
   background-color: #f0f4f8;
   font-family: Arial, sans-serif;
 `;
 
-// Content container (same padding behavior as others)
-const Container = styled.div`
+const Sidebar = styled.div`
+  width: 240px;
+  flex-shrink: 0;
+`;
+
+const Content = styled.div`
+  flex: 1;
   padding: 40px 60px;
   box-sizing: border-box;
 
@@ -27,7 +31,6 @@ const Container = styled.div`
   @media (max-width: 480px) { padding: 15px 15px; }
 `;
 
-// Two-column layout lives INSIDE the container
 const Columns = styled.div`
   display: flex;
   gap: 30px;
@@ -70,7 +73,6 @@ const Card = styled.div`
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
 `;
 
 const RestaurantName = styled.span`
@@ -101,7 +103,6 @@ const Button = styled.button`
   color: white;
   display: inline-flex;
   align-items: center;
-  transition: all 0.2s ease;
   background-color: ${(props) =>
     props.variant === "delete"
       ? "#dc3545"
@@ -111,10 +112,7 @@ const Button = styled.button`
       ? "#007bff"
       : "#ffc107"};
 
-  &:hover {
-    opacity: 0.85;
-    transform: translateY(-2px);
-  }
+  &:hover { opacity: 0.85; }
 
   svg { margin-right: 5px; }
 `;
@@ -152,35 +150,35 @@ export default function ModerationPage() {
 
     const { data: pendingRev } = await supabase
       .from("reviews")
-      .select("id, comment, user_id, restaurant_id, response, restaurants(name), approved, reported")
+      .select("id, comment, response, restaurants(name), approved, reported")
       .eq("approved", false)
       .order("created_at", { ascending: false });
     setPendingReviews(pendingRev || []);
 
     const { data: reportedRev } = await supabase
       .from("reviews")
-      .select("id, comment, user_id, restaurant_id, response, restaurants(name), approved, reported")
+      .select("id, comment, response, restaurants(name), approved, reported")
       .eq("reported", true)
       .order("created_at", { ascending: false });
     setReportedReviews(reportedRev || []);
 
     const { data: pendingCom } = await supabase
       .from("comments")
-      .select("id, comment, user_id, review_id, reviews(comment, restaurant_id, restaurants(name)), approved, reported")
+      .select("id, comment, reviews(restaurants(name)), approved, reported")
       .eq("approved", false)
       .order("created_at", { ascending: false });
     setPendingComments(pendingCom || []);
 
     const { data: reportedCom } = await supabase
       .from("comments")
-      .select("id, comment, user_id, review_id, reviews(comment, restaurant_id, restaurants(name)), approved, reported")
+      .select("id, comment, reviews(restaurants(name)), approved, reported")
       .eq("reported", true)
       .order("created_at", { ascending: false });
     setReportedComments(reportedCom || []);
 
     const { data: approvedRev } = await supabase
       .from("reviews")
-      .select("id, comment, user_id, restaurant_id, response, restaurants(name), approved")
+      .select("id, comment, response, restaurants(name), approved")
       .eq("approved", true)
       .order("created_at", { ascending: false });
 
@@ -191,40 +189,32 @@ export default function ModerationPage() {
   useEffect(() => { fetchData(); }, []);
 
   const approve = async (table, id) => {
-    const { error } = await supabase.from(table).update({ approved: true }).eq("id", id);
-    if (!error) fetchData();
+    await supabase.from(table).update({ approved: true }).eq("id", id);
+    fetchData();
   };
 
   const reject = async (table, id) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-    const { error } = await supabase.from(table).delete().eq("id", id);
-    if (!error) fetchData();
+    if (!window.confirm("Delete this item?")) return;
+    await supabase.from(table).delete().eq("id", id);
+    fetchData();
   };
 
   const removeReport = async (table, id) => {
-    const { error } = await supabase.from(table).update({ reported: false }).eq("id", id);
-    if (!error) fetchData();
-  };
-
-  const setResponseText = (reviewId, text) => {
-    setApprovedReviews(prev => prev.map(r => r.id === reviewId ? { ...r, responseText: text } : r));
+    await supabase.from(table).update({ reported: false }).eq("id", id);
+    fetchData();
   };
 
   const handleResponse = async (e, reviewId) => {
     e.preventDefault();
     const review = approvedReviews.find(r => r.id === reviewId);
-    if (!review.responseText?.trim()) return alert("Response cannot be empty.");
+    if (!review.responseText?.trim()) return;
 
-    const { error } = await supabase
+    await supabase
       .from("reviews")
       .update({ response: review.responseText.trim() })
       .eq("id", reviewId);
 
-    if (!error) {
-      setApprovedReviews(prev => prev.map(r =>
-        r.id === reviewId ? { ...r, response: review.responseText, responseText: "" } : r
-      ));
-    }
+    fetchData();
   };
 
   const renderCard = (item, table, isReported = false) => (
@@ -235,40 +225,38 @@ export default function ModerationPage() {
         </RestaurantName>
       </CardHeader>
 
-      {item.reviews?.comment && (
-        <ReviewText><strong>Review:</strong> {item.reviews.comment}</ReviewText>
-      )}
-
       <ReviewText>{item.comment}</ReviewText>
 
       {item.response && (
         <ReviewText><strong>Company Response:</strong> {item.response}</ReviewText>
       )}
 
-      {(!item.approved || isReported) && (
-        <ButtonGroup>
-          {!isReported && (
-            <Button variant="approve" onClick={() => approve(table, item.id)}>
-              <FaCheck /> Approve
-            </Button>
-          )}
-          {isReported && (
-            <Button variant="safe" onClick={() => removeReport(table, item.id)}>
-              <FaShieldAlt /> Mark Safe
-            </Button>
-          )}
-          <Button variant="delete" onClick={() => reject(table, item.id)}>
-            <FaTimes /> Delete
+      <ButtonGroup>
+        {!item.approved && !isReported && (
+          <Button variant="approve" onClick={() => approve(table, item.id)}>
+            <FaCheck /> Approve
           </Button>
-        </ButtonGroup>
-      )}
+        )}
+        {isReported && (
+          <Button variant="safe" onClick={() => removeReport(table, item.id)}>
+            <FaShieldAlt /> Mark Safe
+          </Button>
+        )}
+        <Button variant="delete" onClick={() => reject(table, item.id)}>
+          <FaTimes /> Delete
+        </Button>
+      </ButtonGroup>
 
       {table === "reviews" && item.approved && (
         <form onSubmit={(e) => handleResponse(e, item.id)}>
           <Textarea
             placeholder="Write a company response..."
             value={item.responseText}
-            onChange={(e) => setResponseText(item.id, e.target.value)}
+            onChange={(e) =>
+              setApprovedReviews(prev => prev.map(r =>
+                r.id === item.id ? { ...r, responseText: e.target.value } : r
+              ))
+            }
           />
           <Button type="submit" variant="approve" style={{ marginTop: "5px" }}>
             <FaCheck /> Post Response
@@ -279,10 +267,12 @@ export default function ModerationPage() {
   );
 
   return (
-    <PageWrapper>
-      <AdminNavbar />
+    <Page>
+      <Sidebar>
+        <AdminNavbar />
+      </Sidebar>
 
-      <Container>
+      <Content>
         <LogoutButton />
         <PageTitle>Moderation Dashboard</PageTitle>
 
@@ -291,24 +281,24 @@ export default function ModerationPage() {
         <Columns>
           <Column>
             <SectionTitle>Pending Reviews</SectionTitle>
-            {pendingReviews.length === 0 ? <p>No pending reviews</p> : pendingReviews.map(r => renderCard(r, "reviews"))}
+            {pendingReviews.map(r => renderCard(r, "reviews"))}
 
             <SectionTitle>Reported Reviews</SectionTitle>
-            {reportedReviews.length === 0 ? <p>No reported reviews</p> : reportedReviews.map(r => renderCard(r, "reviews", true))}
+            {reportedReviews.map(r => renderCard(r, "reviews", true))}
 
             <SectionTitle>Pending Comments</SectionTitle>
-            {pendingComments.length === 0 ? <p>No pending comments</p> : pendingComments.map(c => renderCard(c, "comments"))}
+            {pendingComments.map(c => renderCard(c, "comments"))}
 
             <SectionTitle>Reported Comments</SectionTitle>
-            {reportedComments.length === 0 ? <p>No reported comments</p> : reportedComments.map(c => renderCard(c, "comments", true))}
+            {reportedComments.map(c => renderCard(c, "comments", true))}
           </Column>
 
           <Column>
             <SectionTitle>Approved Reviews</SectionTitle>
-            {approvedReviews.length === 0 ? <p>No approved reviews</p> : approvedReviews.map(r => renderCard(r, "reviews"))}
+            {approvedReviews.map(r => renderCard(r, "reviews"))}
           </Column>
         </Columns>
-      </Container>
-    </PageWrapper>
+      </Content>
+    </Page>
   );
 }
