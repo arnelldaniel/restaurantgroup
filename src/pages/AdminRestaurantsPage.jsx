@@ -304,8 +304,10 @@ export default function AdminRestaurantsPage() {
   };
 
   return (
+    <>
+    <AdminNavbar />
     <Container>
-      <AdminNavbar />
+      
       <PageTitleRow>
         <PageTitle>Admin Panel: Manage Restaurants</PageTitle>
         <Button variant="add" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
@@ -360,5 +362,7 @@ export default function AdminRestaurantsPage() {
         </RestaurantCard>
       ))}
     </Container>
+      </>
   );
+      
 }
