@@ -152,8 +152,10 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <Container>
+    <>
       <AdminNavbar />
+    <Container>
+      
       <PageTitle>Admin Panel: Manage Users</PageTitle>
       <LogoutButton />
       {loading && <p>Loading users...</p>}
@@ -183,5 +185,6 @@ export default function AdminUsersPage() {
           ))}
       </UsersList>
     </Container>
+    </>
   );
 }
