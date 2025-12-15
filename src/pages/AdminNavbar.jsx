@@ -8,6 +8,8 @@ const NavWrapper = styled.header`
   z-index: 1000;
   background: linear-gradient(135deg, #0d6efd, #0b5ed7);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
 `;
 
 const Nav = styled.nav`
