@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import AdminNavbar from "./AdminNavbar";
 import { FaPencilAlt, FaTrash, FaPlus } from "react-icons/fa";
-import LogoutButton from "./LogoutButton";
+
 
 // ---- Full-page Container ----
 const Container = styled.div`
@@ -315,7 +315,7 @@ export default function AdminRestaurantsPage() {
         </Button>
       </PageTitleRow>
 
-      <LogoutButton />
+      
 
       {showForm && (
         <Form onSubmit={handleAddOrUpdate}>
