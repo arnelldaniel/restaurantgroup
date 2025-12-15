@@ -6,8 +6,6 @@ import { UserContext } from "./UserContext";
 import AdminNavbar from "./AdminNavbar";
 import { FaPencilAlt, FaTrash, FaPlus } from "react-icons/fa";
 
-
-// ---- Full-page Container ----
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
@@ -21,7 +19,7 @@ const Container = styled.div`
   @media (max-width: 480px) { padding: 15px 15px; }
 `;
 
-// Page Title
+
 const PageTitleRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -34,7 +32,7 @@ const PageTitle = styled.h2`
   color: #343a40;
 `;
 
-// Form
+
 const Form = styled.form`
   width: 100%;
   background: #ffffff;
@@ -56,7 +54,7 @@ const FormTitle = styled.h3`
   padding-bottom: 5px;
 `;
 
-// Input
+
 const Input = styled.input`
   padding: 12px 14px;
   border-radius: 8px;
@@ -73,7 +71,7 @@ const Input = styled.input`
   }
 `;
 
-// TextArea
+
 const TextArea = styled.textarea`
   padding: 12px 14px;
   border-radius: 8px;
@@ -91,7 +89,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-// Buttons
+
 const Button = styled.button`
   padding: 10px 16px;
   margin: 5px 5px 0 0;
@@ -114,7 +112,7 @@ const Button = styled.button`
   }
 `;
 
-// Image preview
+
 const ImagePreview = styled.img`
   max-width: 300px;
   border-radius: 12px;
@@ -123,7 +121,7 @@ const ImagePreview = styled.img`
   object-fit: cover;
 `;
 
-// Restaurant Card
+
 const RestaurantCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -135,7 +133,7 @@ const RestaurantCard = styled.div`
   width: 100%;
 `;
 
-// Card Header
+
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -143,7 +141,7 @@ const CardHeader = styled.div`
   padding: 15px;
 `;
 
-// Cuisine Badge
+
 const CuisineBadge = styled.span`
   background-color: #007bff;
   color: white;
@@ -153,12 +151,12 @@ const CuisineBadge = styled.span`
   text-transform: capitalize;
 `;
 
-// Card Body
+
 const CardBody = styled.div`
   padding: 15px;
 `;
 
-// Card Image
+
 const CardImage = styled.img`
   width: 100%;
   max-height: 350px;
@@ -166,7 +164,7 @@ const CardImage = styled.img`
   border-bottom: 1px solid #e0e0e0;
 `;
 
-// Card Text
+
 const Title = styled.h4`
   font-size: 22px;
   margin: 0 0 8px 0;
@@ -190,7 +188,7 @@ const RatingText = styled.p`
   font-weight: 500;
 `;
 
-// ---- Component ----
+
 export default function AdminRestaurantsPage() {
   const [restaurants, setRestaurants] = useState([]);
   const navigate = useNavigate();
