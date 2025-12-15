@@ -279,10 +279,10 @@ export default function ModerationPage() {
   return (
     <>
       
-
+<AdminNavbar />
 
       <Container>
-        <AdminNavbar />
+        
         <Column>
           <LogoutButton />
           <PageTitle>Moderation Dashboard</PageTitle>
