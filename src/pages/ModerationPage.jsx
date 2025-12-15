@@ -278,7 +278,7 @@ export default function ModerationPage() {
 
   return (
     <>
-      <AdminNavbar />
+      {user?.role === "admin" && <AdminNavbar />}
 
       <Container>
         <Column>
