@@ -170,7 +170,10 @@ export default function ModerationPage() {
       .eq("approved", true)
       .order("created_at", { ascending: false });
 
-    setApprovedReviews((approvedRev || []).map(r => ({ ...r, responseText: "" })));
+    setApprovedReviews(
+      (approvedRev || []).map(r => ({ ...r, responseText: "" }))
+    );
+
     setLoading(false);
   };
 
@@ -203,17 +206,20 @@ export default function ModerationPage() {
   const handleResponse = async (e, reviewId) => {
     e.preventDefault();
     const review = approvedReviews.find(r => r.id === reviewId);
-    if (!review.responseText?.trim()) return alert("Response cannot be empty.");
+    const trimmedResponse = review.responseText?.trim();
+    if (!trimmedResponse) return alert("Response cannot be empty.");
 
     const { error } = await supabase
       .from("reviews")
-      .update({ response: review.responseText.trim() })
+      .update({ response: trimmedResponse })
       .eq("id", reviewId);
 
     if (!error) {
       setApprovedReviews(prev =>
         prev.map(r =>
-          r.id === reviewId ? { ...r, response: review.responseText, responseText: "" } : r
+          r.id === reviewId
+            ? { ...r, response: trimmedResponse, responseText: "" }
+            : r
         )
       );
     }
@@ -271,42 +277,49 @@ export default function ModerationPage() {
   );
 
   return (
-    <Container>
-      <AdminNavbar />
+    <>
+      {/* ADMIN ONLY NAVBAR */}
+      {user?.role === "admin" && (
+  <div style={{ fontFamily: "revert" }}>
+    <AdminNavbar />
+  </div>
+)}
 
-      <Column>
-        <LogoutButton />
-        <PageTitle>Moderation Dashboard</PageTitle>
 
-        {loading && <p>Loading...</p>}
+      <Container>
+        <Column>
+          <LogoutButton />
+          <PageTitle>Moderation Dashboard</PageTitle>
+          {loading && <p>Loading...</p>}
 
-        <SectionTitle>Pending Reviews</SectionTitle>
-        {pendingReviews.length === 0
-          ? <p>No pending reviews</p>
-          : pendingReviews.map(r => renderCard(r, "reviews"))}
+          <SectionTitle>Pending Reviews</SectionTitle>
+          {pendingReviews.length === 0
+            ? <p>No pending reviews</p>
+            : pendingReviews.map(r => renderCard(r, "reviews"))}
 
-        <SectionTitle>Reported Reviews</SectionTitle>
-        {reportedReviews.length === 0
-          ? <p>No reported reviews</p>
-          : reportedReviews.map(r => renderCard(r, "reviews", true))}
+          <SectionTitle>Reported Reviews</SectionTitle>
+          {reportedReviews.length === 0
+            ? <p>No reported reviews</p>
+            : reportedReviews.map(r => renderCard(r, "reviews", true))}
 
-        <SectionTitle>Pending Comments</SectionTitle>
-        {pendingComments.length === 0
-          ? <p>No pending comments</p>
-          : pendingComments.map(c => renderCard(c, "comments"))}
+          <SectionTitle>Pending Comments</SectionTitle>
+          {pendingComments.length === 0
+            ? <p>No pending comments</p>
+            : pendingComments.map(c => renderCard(c, "comments"))}
 
-        <SectionTitle>Reported Comments</SectionTitle>
-        {reportedComments.length === 0
-          ? <p>No reported comments</p>
-          : reportedComments.map(c => renderCard(c, "comments", true))}
-      </Column>
+          <SectionTitle>Reported Comments</SectionTitle>
+          {reportedComments.length === 0
+            ? <p>No reported comments</p>
+            : reportedComments.map(c => renderCard(c, "comments", true))}
+        </Column>
 
-      <Column>
-        <PageTitle>Approved Reviews</PageTitle>
-        {approvedReviews.length === 0
-          ? <p>No approved reviews</p>
-          : approvedReviews.map(r => renderCard(r, "reviews"))}
-      </Column>
-    </Container>
+        <Column>
+          <PageTitle>Approved Reviews</PageTitle>
+          {approvedReviews.length === 0
+            ? <p>No approved reviews</p>
+            : approvedReviews.map(r => renderCard(r, "reviews"))}
+        </Column>
+      </Container>
+    </>
   );
 }
