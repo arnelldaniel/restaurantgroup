@@ -1,11 +1,7 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { Link, useLocation } from "react-router-dom";
-
-/* 👇 Font import scoped to this component */
-const NavFont = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-`;
+import LogoutButton from "./LogoutButton"; // Adjust this import path if necessary
 
 const NavWrapper = styled.header`
   position: sticky;
@@ -13,9 +9,7 @@ const NavWrapper = styled.header`
   z-index: 1000;
   background: linear-gradient(135deg, #0d6efd, #0b5ed7);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 `;
 
 const Nav = styled.nav`
@@ -28,15 +22,16 @@ const Nav = styled.nav`
 `;
 
 const Brand = styled.div`
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #ffffff;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 `;
 
 const NavLinks = styled.div`
   display: flex;
   gap: 12px;
+  align-items: center;
 `;
 
 const NavLink = styled(Link)`
@@ -46,10 +41,8 @@ const NavLink = styled(Link)`
   color: #ffffff;
   text-decoration: none;
   font-weight: ${(props) => (props.$active ? "600" : "500")};
-  background-color: ${(props) =>
-    props.$active ? "rgba(255,255,255,0.2)" : "transparent"};
-  transition: background-color 0.2s ease, transform 0.15s ease,
-    box-shadow 0.15s ease;
+  background-color: ${(props) => (props.$active ? "rgba(255,255,255,0.2)" : "transparent")};
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.25);
@@ -80,33 +73,31 @@ export default function AdminNavbar() {
   const location = useLocation();
 
   return (
-    <>
-      <NavFont />
-      <NavWrapper>
-        <Nav>
-          <Brand>Admin Panel</Brand>
-          <NavLinks>
-            <NavLink
-              to="/admin/restaurants"
-              $active={location.pathname === "/admin/restaurants"}
-            >
-              Restaurants
-            </NavLink>
-            <NavLink
-              to="/admin/users"
-              $active={location.pathname === "/admin/users"}
-            >
-              Users
-            </NavLink>
-            <NavLink
-              to="/moderation"
-              $active={location.pathname === "/moderation"}
-            >
-              Moderation
-            </NavLink>
-          </NavLinks>
-        </Nav>
-      </NavWrapper>
-    </>
+    <NavWrapper>
+      <Nav>
+        <Brand>Admin Panel</Brand>
+        <NavLinks>
+          <NavLink
+            to="/admin/restaurants"
+            $active={location.pathname === "/admin/restaurants"}
+          >
+            Restaurants
+          </NavLink>
+          <NavLink
+            to="/admin/users"
+            $active={location.pathname === "/admin/users"}
+          >
+            Users
+          </NavLink>
+          <NavLink
+            to="/moderation"
+            $active={location.pathname === "/moderation"}
+          >
+            Moderation
+          </NavLink>
+          <LogoutButton />
+        </NavLinks>
+      </Nav>
+    </NavWrapper>
   );
 }
