@@ -195,7 +195,7 @@ export default function HomePage() {
             <Subtitle>
               Browse curated listings, read trusted reviews, and share your own dining experiences — all on a clean, modern platform.
             </Subtitle>
-            <CTAButton to="/search">Explore Restaurants</CTAButton>
+            
           </HeroText>
 
           <HeroImageWrapper>
