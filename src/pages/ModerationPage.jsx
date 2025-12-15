@@ -278,15 +278,11 @@ export default function ModerationPage() {
 
   return (
     <>
-      {/* ADMIN ONLY NAVBAR */}
-      {user?.role === "admin" && (
-  <div style={{ fontFamily: "revert" }}>
-    <AdminNavbar />
-  </div>
-)}
+      
 
 
       <Container>
+        <AdminNavbar />
         <Column>
           <LogoutButton />
           <PageTitle>Moderation Dashboard</PageTitle>
