@@ -5,6 +5,9 @@ import { UserContext } from "./UserContext";
 import styled from "styled-components";
 import { FaCheck, FaTimes, FaShieldAlt } from "react-icons/fa";
 import LogoutButton from "./LogoutButton";
+import AdminNavbar from "./AdminNavbar";
+
+/* ================== STYLES ================== */
 
 const Container = styled.div`
   display: flex;
@@ -111,6 +114,8 @@ const Textarea = styled.textarea`
   resize: vertical;
 `;
 
+/* ================== PAGE ================== */
+
 export default function ModerationPage() {
   const [pendingReviews, setPendingReviews] = useState([]);
   const [reportedReviews, setReportedReviews] = useState([]);
@@ -166,7 +171,7 @@ export default function ModerationPage() {
       .order("created_at", { ascending: false });
 
     setApprovedReviews(
-      (approvedRev || []).map(r => ({ ...r, responseText: "" })) // empty textarea initially
+      (approvedRev || []).map(r => ({ ...r, responseText: "" }))
     );
 
     setLoading(false);
@@ -210,10 +215,11 @@ export default function ModerationPage() {
       .eq("id", reviewId);
 
     if (!error) {
-      // Show response immediately and clear textarea
       setApprovedReviews(prev =>
         prev.map(r =>
-          r.id === reviewId ? { ...r, response: trimmedResponse, responseText: "" } : r
+          r.id === reviewId
+            ? { ...r, response: trimmedResponse, responseText: "" }
+            : r
         )
       );
     }
@@ -222,24 +228,39 @@ export default function ModerationPage() {
   const renderCard = (item, table, isReported = false) => (
     <Card key={item.id}>
       <CardHeader>
-        <RestaurantName>{item.restaurants?.name || item.reviews?.restaurants?.name || "Unknown"}</RestaurantName>
+        <RestaurantName>
+          {item.restaurants?.name || item.reviews?.restaurants?.name || "Unknown"}
+        </RestaurantName>
       </CardHeader>
 
-      {item.reviews?.comment && <ReviewText><strong>Review:</strong> {item.reviews.comment}</ReviewText>}
+      {item.reviews?.comment && (
+        <ReviewText><strong>Review:</strong> {item.reviews.comment}</ReviewText>
+      )}
+
       <ReviewText>{item.comment}</ReviewText>
 
-      {item.response && <ReviewText><strong>Company Response:</strong> {item.response}</ReviewText>}
+      {item.response && (
+        <ReviewText><strong>Company Response:</strong> {item.response}</ReviewText>
+      )}
 
-      {/* Show moderation buttons only for pending/reported items */}
       {(!item.approved || isReported) && (
         <ButtonGroup>
-          {!isReported && <Button variant="approve" onClick={() => approve(table, item.id)}><FaCheck /> Approve</Button>}
-          {isReported && <Button variant="safe" onClick={() => removeReport(table, item.id)}><FaShieldAlt /> Mark Safe</Button>}
-          <Button variant="delete" onClick={() => reject(table, item.id)}><FaTimes /> Delete</Button>
+          {!isReported && (
+            <Button variant="approve" onClick={() => approve(table, item.id)}>
+              <FaCheck /> Approve
+            </Button>
+          )}
+          {isReported && (
+            <Button variant="safe" onClick={() => removeReport(table, item.id)}>
+              <FaShieldAlt /> Mark Safe
+            </Button>
+          )}
+          <Button variant="delete" onClick={() => reject(table, item.id)}>
+            <FaTimes /> Delete
+          </Button>
         </ButtonGroup>
       )}
 
-      {/* Show company response form only for approved reviews */}
       {table === "reviews" && item.approved && (
         <form onSubmit={(e) => handleResponse(e, item.id)}>
           <Textarea
@@ -256,30 +277,44 @@ export default function ModerationPage() {
   );
 
   return (
-    <Container>
-      <Column>
-      <LogoutButton />
-        <PageTitle>Moderation Dashboard</PageTitle>
-        {loading && <p>Loading...</p>}
-        
+    <>
+      {/* ADMIN ONLY NAVBAR */}
+      {user?.role === "admin" && <AdminNavbar />}
 
-        <SectionTitle>Pending Reviews</SectionTitle>
-        {pendingReviews.length === 0 ? <p>No pending reviews</p> : pendingReviews.map(r => renderCard(r, "reviews"))}
+      <Container>
+        <Column>
+          <LogoutButton />
+          <PageTitle>Moderation Dashboard</PageTitle>
+          {loading && <p>Loading...</p>}
 
-        <SectionTitle>Reported Reviews</SectionTitle>
-        {reportedReviews.length === 0 ? <p>No reported reviews</p> : reportedReviews.map(r => renderCard(r, "reviews", true))}
+          <SectionTitle>Pending Reviews</SectionTitle>
+          {pendingReviews.length === 0
+            ? <p>No pending reviews</p>
+            : pendingReviews.map(r => renderCard(r, "reviews"))}
 
-        <SectionTitle>Pending Comments</SectionTitle>
-        {pendingComments.length === 0 ? <p>No pending comments</p> : pendingComments.map(c => renderCard(c, "comments"))}
+          <SectionTitle>Reported Reviews</SectionTitle>
+          {reportedReviews.length === 0
+            ? <p>No reported reviews</p>
+            : reportedReviews.map(r => renderCard(r, "reviews", true))}
 
-        <SectionTitle>Reported Comments</SectionTitle>
-        {reportedComments.length === 0 ? <p>No reported comments</p> : reportedComments.map(c => renderCard(c, "comments", true))}
-      </Column>
+          <SectionTitle>Pending Comments</SectionTitle>
+          {pendingComments.length === 0
+            ? <p>No pending comments</p>
+            : pendingComments.map(c => renderCard(c, "comments"))}
 
-      <Column>
-        <PageTitle>Approved Reviews</PageTitle>
-        {approvedReviews.length === 0 ? <p>No approved reviews</p> : approvedReviews.map(r => renderCard(r, "reviews"))}
-      </Column>
-    </Container>
+          <SectionTitle>Reported Comments</SectionTitle>
+          {reportedComments.length === 0
+            ? <p>No reported comments</p>
+            : reportedComments.map(c => renderCard(c, "comments", true))}
+        </Column>
+
+        <Column>
+          <PageTitle>Approved Reviews</PageTitle>
+          {approvedReviews.length === 0
+            ? <p>No approved reviews</p>
+            : approvedReviews.map(r => renderCard(r, "reviews"))}
+        </Column>
+      </Container>
+    </>
   );
 }
