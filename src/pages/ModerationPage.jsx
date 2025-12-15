@@ -7,25 +7,41 @@ import { FaCheck, FaTimes, FaShieldAlt } from "react-icons/fa";
 import LogoutButton from "./LogoutButton";
 import AdminNavbar from "./AdminNavbar";
 
-/* ================== STYLES ================== */
+/* ================== LAYOUT ================== */
 
-const Container = styled.div`
-  display: flex;
-  gap: 30px;
-  padding: 40px 60px;
-  font-family: Arial, sans-serif;
+// Page wrapper matches other admin pages
+const PageWrapper = styled.div`
+  width: 100%;
   min-height: 100vh;
   background-color: #f0f4f8;
+  font-family: Arial, sans-serif;
+`;
+
+// Content container (same padding behavior as others)
+const Container = styled.div`
+  padding: 40px 60px;
+  box-sizing: border-box;
+
+  @media (max-width: 1024px) { padding: 30px 40px; }
+  @media (max-width: 768px) { padding: 20px 25px; }
+  @media (max-width: 480px) { padding: 15px 15px; }
+`;
+
+// Two-column layout lives INSIDE the container
+const Columns = styled.div`
+  display: flex;
+  gap: 30px;
 
   @media (max-width: 1024px) {
     flex-direction: column;
-    padding: 30px 40px;
   }
 `;
 
 const Column = styled.div`
   flex: 1;
 `;
+
+/* ================== UI ================== */
 
 const PageTitle = styled.h2`
   font-size: 36px;
@@ -100,9 +116,7 @@ const Button = styled.button`
     transform: translateY(-2px);
   }
 
-  svg {
-    margin-right: 5px;
-  }
+  svg { margin-right: 5px; }
 `;
 
 const Textarea = styled.textarea`
@@ -174,9 +188,7 @@ export default function ModerationPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const approve = async (table, id) => {
     const { error } = await supabase.from(table).update({ approved: true }).eq("id", id);
@@ -195,9 +207,7 @@ export default function ModerationPage() {
   };
 
   const setResponseText = (reviewId, text) => {
-    setApprovedReviews(prev =>
-      prev.map(r => (r.id === reviewId ? { ...r, responseText: text } : r))
-    );
+    setApprovedReviews(prev => prev.map(r => r.id === reviewId ? { ...r, responseText: text } : r));
   };
 
   const handleResponse = async (e, reviewId) => {
@@ -211,11 +221,9 @@ export default function ModerationPage() {
       .eq("id", reviewId);
 
     if (!error) {
-      setApprovedReviews(prev =>
-        prev.map(r =>
-          r.id === reviewId ? { ...r, response: review.responseText, responseText: "" } : r
-        )
-      );
+      setApprovedReviews(prev => prev.map(r =>
+        r.id === reviewId ? { ...r, response: review.responseText, responseText: "" } : r
+      ));
     }
   };
 
@@ -271,42 +279,36 @@ export default function ModerationPage() {
   );
 
   return (
-    <Container>
+    <PageWrapper>
       <AdminNavbar />
 
-      <Column>
+      <Container>
         <LogoutButton />
         <PageTitle>Moderation Dashboard</PageTitle>
 
         {loading && <p>Loading...</p>}
 
-        <SectionTitle>Pending Reviews</SectionTitle>
-        {pendingReviews.length === 0
-          ? <p>No pending reviews</p>
-          : pendingReviews.map(r => renderCard(r, "reviews"))}
+        <Columns>
+          <Column>
+            <SectionTitle>Pending Reviews</SectionTitle>
+            {pendingReviews.length === 0 ? <p>No pending reviews</p> : pendingReviews.map(r => renderCard(r, "reviews"))}
 
-        <SectionTitle>Reported Reviews</SectionTitle>
-        {reportedReviews.length === 0
-          ? <p>No reported reviews</p>
-          : reportedReviews.map(r => renderCard(r, "reviews", true))}
+            <SectionTitle>Reported Reviews</SectionTitle>
+            {reportedReviews.length === 0 ? <p>No reported reviews</p> : reportedReviews.map(r => renderCard(r, "reviews", true))}
 
-        <SectionTitle>Pending Comments</SectionTitle>
-        {pendingComments.length === 0
-          ? <p>No pending comments</p>
-          : pendingComments.map(c => renderCard(c, "comments"))}
+            <SectionTitle>Pending Comments</SectionTitle>
+            {pendingComments.length === 0 ? <p>No pending comments</p> : pendingComments.map(c => renderCard(c, "comments"))}
 
-        <SectionTitle>Reported Comments</SectionTitle>
-        {reportedComments.length === 0
-          ? <p>No reported comments</p>
-          : reportedComments.map(c => renderCard(c, "comments", true))}
-      </Column>
+            <SectionTitle>Reported Comments</SectionTitle>
+            {reportedComments.length === 0 ? <p>No reported comments</p> : reportedComments.map(c => renderCard(c, "comments", true))}
+          </Column>
 
-      <Column>
-        <PageTitle>Approved Reviews</PageTitle>
-        {approvedReviews.length === 0
-          ? <p>No approved reviews</p>
-          : approvedReviews.map(r => renderCard(r, "reviews"))}
-      </Column>
-    </Container>
+          <Column>
+            <SectionTitle>Approved Reviews</SectionTitle>
+            {approvedReviews.length === 0 ? <p>No approved reviews</p> : approvedReviews.map(r => renderCard(r, "reviews"))}
+          </Column>
+        </Columns>
+      </Container>
+    </PageWrapper>
   );
 }
