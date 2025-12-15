@@ -6,7 +6,6 @@ import { UserContext } from './UserContext';
 import { FaPencilAlt, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import LogoutButton from './LogoutButton';
 
-// ---- Full-page container ----
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
