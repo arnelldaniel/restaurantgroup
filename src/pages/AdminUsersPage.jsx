@@ -5,7 +5,7 @@ import { UserContext } from "./UserContext";
 import styled from "styled-components";
 import AdminNavbar from "./AdminNavbar";
 import { FaTrash, FaUserSlash, FaUserCheck } from "react-icons/fa";
-import LogoutButton from "./LogoutButton";
+
 
 // ---- Full-page Container ----
 const Container = styled.div`
@@ -157,7 +157,7 @@ export default function AdminUsersPage() {
     <Container>
       
       <PageTitle>Admin Panel: Manage Users</PageTitle>
-      <LogoutButton />
+      
       {loading && <p>Loading users...</p>}
       {!loading && users.length === 0 && <p>No users found.</p>}
 
