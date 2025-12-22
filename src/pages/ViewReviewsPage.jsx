@@ -6,7 +6,6 @@ import { UserContext } from "./UserContext";
 import LogoutButton from "./LogoutButton";
 
 // ----------------- STYLES -----------------
-
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
@@ -84,9 +83,24 @@ const Rating = styled.div`
   margin: 6px 0;
 `;
 
+const RatingInput = styled.select`
+  margin-left: 10px;
+  padding: 4px 6px;
+  font-size: 14px;
+`;
+
 const ReviewText = styled.p`
   margin: 8px 0;
   font-size: 15px;
+`;
+
+const ReviewTextarea = styled.textarea`
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  margin-bottom: 8px;
 `;
 
 const DateText = styled.p`
@@ -118,18 +132,18 @@ const ButtonsRow = styled.div`
 
   button.delete {
     background: #dc3545;
-
-    &:hover {
-      opacity: 0.85;
-    }
   }
 
   button.report {
     background: #6c757d;
+  }
 
-    &:hover {
-      opacity: 0.85;
-    }
+  button.save {
+    background: #28a745;
+  }
+
+  button.cancel {
+    background: #6c757d;
   }
 `;
 
@@ -169,6 +183,7 @@ const ReportedTag = styled.span`
   color: red;
   margin-left: 6px;
 `;
+
 const SubmitReviewLink = styled(Link)`
   display: inline-block;
   padding: 10px 18px;
@@ -196,6 +211,10 @@ export default function ViewReviewsPage() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterOption, setFilterOption] = useState("date");
+
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingText, setEditingText] = useState("");
+  const [editingRating, setEditingRating] = useState(0);
 
   const fetchRestaurant = async () => {
     const { data } = await supabase
@@ -293,10 +312,7 @@ export default function ViewReviewsPage() {
   };
 
   const reportReview = async (reviewId) => {
-    await supabase
-      .from("reviews")
-      .update({ reported: true })
-      .eq("id", reviewId);
+    await supabase.from("reviews").update({ reported: true }).eq("id", reviewId);
     fetchReviews();
   };
 
@@ -344,6 +360,32 @@ export default function ViewReviewsPage() {
     fetchReviews();
   };
 
+  // --- Edit Review Functions ---
+  const startEditing = (review) => {
+    setEditingReviewId(review.id);
+    setEditingText(review.comment);
+    setEditingRating(review.rating);
+  };
+
+  const cancelEditing = () => {
+    setEditingReviewId(null);
+    setEditingText("");
+    setEditingRating(0);
+  };
+
+  const saveEdit = async (reviewId) => {
+    if (!editingText.trim()) return alert("Comment cannot be empty.");
+
+    await supabase
+      .from("reviews")
+      .update({ comment: editingText.trim(), rating: editingRating })
+      .eq("id", reviewId)
+      .eq("user_id", CURRENT_USER_ID);
+
+    setEditingReviewId(null);
+    fetchReviews();
+  };
+
   return (
     <Container>
       <HeaderRow>
@@ -364,8 +406,8 @@ export default function ViewReviewsPage() {
           <option value="helpful">Most Helpful</option>
         </select>
       </FilterRow>
+
       <SubmitReviewLink to={`/restaurant/${id}/review`}>Submit Review</SubmitReviewLink>
-      
 
       {loading && <p>Loading reviews...</p>}
       {!loading && reviews.length === 0 && <p>No reviews yet.</p>}
@@ -375,38 +417,72 @@ export default function ViewReviewsPage() {
           <ReviewCard key={r.id}>
             <Username>{r.user.username}</Username>
 
-            <Rating>
-              {"★".repeat(r.rating)}
-              {"☆".repeat(5 - r.rating)}
-            </Rating>
+            {editingReviewId === r.id ? (
+              <>
+                <Rating>
+                  Rating:{" "}
+                  <RatingInput
+                    value={editingRating}
+                    onChange={(e) => setEditingRating(Number(e.target.value))}
+                  >
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </RatingInput>
+                </Rating>
+                <ReviewTextarea
+                  value={editingText}
+                  onChange={(e) => setEditingText(e.target.value)}
+                />
+                <ButtonsRow>
+                  <button className="save" onClick={() => saveEdit(r.id)}>
+                    Save
+                  </button>
+                  <button className="cancel" onClick={cancelEditing}>
+                    Cancel
+                  </button>
+                </ButtonsRow>
+              </>
+            ) : (
+              <>
+                <Rating>
+                  {"★".repeat(r.rating)}
+                  {"☆".repeat(5 - r.rating)}
+                </Rating>
+                <ReviewText>{r.comment}</ReviewText>
 
-            <ReviewText>{r.comment}</ReviewText>
+                <DateText>
+                  Posted on {new Date(r.created_at).toLocaleDateString()}
+                </DateText>
 
-            <DateText>
-              Posted on {new Date(r.created_at).toLocaleDateString()}
-            </DateText>
+                <div>
+                  Helpful: {r.helpful_count} | Unhelpful: {r.unhelpful_count}
+                </div>
 
-            <div>
-              Helpful: {r.helpful_count} | Unhelpful: {r.unhelpful_count}
-            </div>
+                <ButtonsRow>
+                  <button onClick={() => voteReview(r.id, "helpful")}>
+                    Helpful
+                  </button>
+                  <button onClick={() => voteReview(r.id, "unhelpful")}>
+                    Unhelpful
+                  </button>
+                  <button className="report" onClick={() => reportReview(r.id)}>
+                    Report
+                  </button>
 
-            <ButtonsRow>
-              <button onClick={() => voteReview(r.id, "helpful")}>
-                Helpful
-              </button>
-              <button onClick={() => voteReview(r.id, "unhelpful")}>
-                Unhelpful
-              </button>
-              <button className="report" onClick={() => reportReview(r.id)}>
-                Report
-              </button>
-
-              {r.user_id === CURRENT_USER_ID && (
-                <button className="delete" onClick={() => deleteReview(r.id)}>
-                  Delete Review
-                </button>
-              )}
-            </ButtonsRow>
+                  {r.user_id === CURRENT_USER_ID && (
+                    <>
+                      <button className="delete" onClick={() => deleteReview(r.id)}>
+                        Delete Review
+                      </button>
+                      <button onClick={() => startEditing(r)}>Edit</button>
+                    </>
+                  )}
+                </ButtonsRow>
+              </>
+            )}
 
             <form onSubmit={(e) => addComment(e, r.id)}>
               <CommentInput
