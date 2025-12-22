@@ -181,6 +181,13 @@ export default function ModerationPage() {
     fetchData();
   }, []);
 
+  // ✅ ALERT LOGIC
+  const hasAlerts =
+    pendingReviews.length > 0 ||
+    pendingComments.length > 0 ||
+    reportedReviews.length > 0 ||
+    reportedComments.length > 0;
+
   const approve = async (table, id) => {
     const { error } = await supabase.from(table).update({ approved: true }).eq("id", id);
     if (!error) fetchData();
@@ -245,7 +252,7 @@ export default function ModerationPage() {
 
       {(!item.approved || isReported) && (
         <ButtonGroup>
-          {!isReported && (
+          {!isReported && !item.approved && (
             <Button variant="approve" onClick={() => approve(table, item.id)}>
               <FaCheck /> Approve
             </Button>
@@ -255,9 +262,11 @@ export default function ModerationPage() {
               <FaShieldAlt /> Mark Safe
             </Button>
           )}
-          <Button variant="delete" onClick={() => reject(table, item.id)}>
-            <FaTimes /> Delete
-          </Button>
+          {!item.approved && (
+            <Button variant="delete" onClick={() => reject(table, item.id)}>
+              <FaTimes /> Delete
+            </Button>
+          )}
         </ButtonGroup>
       )}
 
@@ -285,6 +294,23 @@ export default function ModerationPage() {
           {user?.role === "moderator" && <LogoutButton />}
 
           <PageTitle>Moderation Dashboard</PageTitle>
+
+          {/* ✅ ALERT BANNER: Only for pending/reported items */}
+          {hasAlerts && (
+            <div
+              style={{
+                background: "#dc3545",
+                color: "white",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                fontWeight: "bold",
+              }}
+            >
+              ⚠️ New reviews or comments require moderation
+            </div>
+          )}
+
           {loading && <p>Loading...</p>}
 
           <SectionTitle>Pending Reviews</SectionTitle>
