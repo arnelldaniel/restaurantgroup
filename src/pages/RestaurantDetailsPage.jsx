@@ -170,6 +170,9 @@ export default function RestaurantDetailsPage() {
         <strong>Description:</strong> {restaurant.description}
       </Info>
       <Info>
+  <strong>Contact:</strong> {restaurant.contact}
+</Info>
+      <Info>
         <strong>Average Rating:</strong> {averageRating}
       </Info>
 
